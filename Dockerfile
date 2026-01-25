@@ -1,23 +1,20 @@
-FROM php:8.2-fpm-alpine AS php-base
-
 FROM nginx:alpine
 
-# Install PHP and required extensions
+# Install PHP and required extensions (Alpine 3.21+ uses php84)
 RUN apk add --no-cache \
-    php82 \
-    php82-fpm \
-    php82-json \
-    php82-openssl \
-    php82-curl \
-    php82-mbstring \
-    && ln -sf /usr/bin/php82 /usr/bin/php
+    php84 \
+    php84-fpm \
+    php84-openssl \
+    php84-curl \
+    php84-mbstring \
+    && ln -sf /usr/bin/php84 /usr/bin/php
 
 # Configure PHP-FPM
-RUN sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/' /etc/php82/php-fpm.d/www.conf \
-    && sed -i 's/;listen.owner = nobody/listen.owner = nginx/' /etc/php82/php-fpm.d/www.conf \
-    && sed -i 's/;listen.group = nobody/listen.group = nginx/' /etc/php82/php-fpm.d/www.conf \
-    && sed -i 's/user = nobody/user = nginx/' /etc/php82/php-fpm.d/www.conf \
-    && sed -i 's/group = nobody/group = nginx/' /etc/php82/php-fpm.d/www.conf
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/' /etc/php84/php-fpm.d/www.conf \
+    && sed -i 's/;listen.owner = nobody/listen.owner = nginx/' /etc/php84/php-fpm.d/www.conf \
+    && sed -i 's/;listen.group = nobody/listen.group = nginx/' /etc/php84/php-fpm.d/www.conf \
+    && sed -i 's/user = nobody/user = nginx/' /etc/php84/php-fpm.d/www.conf \
+    && sed -i 's/group = nobody/group = nginx/' /etc/php84/php-fpm.d/www.conf
 
 # Copy site files
 COPY mysite/ /usr/share/nginx/html/
@@ -25,7 +22,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create startup script
 RUN echo '#!/bin/sh' > /start.sh \
-    && echo 'php-fpm82 &' >> /start.sh \
+    && echo 'php-fpm84 &' >> /start.sh \
     && echo 'nginx -g "daemon off;"' >> /start.sh \
     && chmod +x /start.sh
 
