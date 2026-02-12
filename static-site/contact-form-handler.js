@@ -1,36 +1,44 @@
 /**
  * Contact Form Handler
- * Intercepts Gravity Forms submission and sends to our PHP backend
+ * Intercepts Gravity Forms submission and sends to our PHP backend.
+ *
+ * This script runs at the end of <body> so the DOM is already available.
+ * It listens on the submit button's click event because WP Rocket's
+ * RocketLazyLoadScripts captures and replays click events, ensuring
+ * our handler fires even on the user's first interaction.
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Find the Gravity Form
-    const form = document.querySelector('.gform_wrapper form');
-
+(function() {
+    var form = document.querySelector('.gform_wrapper form');
     if (!form) {
-        console.log('Contact form not found');
         return;
     }
 
-    // Prevent default Gravity Forms submission
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+    var submitButton = form.querySelector('input[type="submit"]');
+    if (!submitButton) {
+        return;
+    }
 
+    function handleFormSubmission() {
         // Get form values from Gravity Forms fields
-        const nameField = document.querySelector('input[name="input_2"]');
-        const emailField = document.querySelector('input[name="input_3"]');
-        const phoneField = document.querySelector('input[name="input_4"]');
-        const serviceField = document.querySelector('input[name="input_7"]:checked');
-        const messageField = document.querySelector('textarea[name="input_5"]');
+        var nameField = document.querySelector('input[name="input_2"]');
+        var emailField = document.querySelector('input[name="input_3"]');
+        var phoneField = document.querySelector('input[name="input_4"]');
+        var serviceField = document.querySelector('input[name="input_7"]:checked');
+        var messageField = document.querySelector('textarea[name="input_5"]');
 
         if (!nameField || !emailField || !phoneField) {
             alert('Please fill out all required fields');
             return;
         }
 
+        if (!nameField.value.trim() || !emailField.value.trim() || !phoneField.value.trim()) {
+            alert('Please fill out all required fields');
+            return;
+        }
+
         // Build form data
-        const formData = new FormData();
+        var formData = new FormData();
         formData.append('name', nameField.value);
         formData.append('email', emailField.value);
         formData.append('phone', phoneField.value);
@@ -38,8 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('message', messageField ? messageField.value : '');
 
         // Show loading state
-        const submitButton = form.querySelector('input[type="submit"]');
-        const originalText = submitButton.value;
+        var originalText = submitButton.value;
         submitButton.value = 'Sending...';
         submitButton.disabled = true;
 
@@ -48,8 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             if (data.success) {
                 alert(data.message);
                 form.reset();
@@ -57,15 +64,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Error: ' + data.message);
             }
         })
-        .catch(error => {
+        .catch(function() {
             alert('There was an error sending your message. Please call us directly at (217) 714-7408.');
-            console.error('Form submission error:', error);
         })
-        .finally(() => {
+        .finally(function() {
             submitButton.value = originalText;
             submitButton.disabled = false;
         });
+    }
 
-        return false;
+    // Listen on click (WP Rocket saves and replays click events).
+    submitButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleFormSubmission();
+    });
+
+    // Also listen on submit as a fallback.
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleFormSubmission();
     }, true);
-});
+})();
