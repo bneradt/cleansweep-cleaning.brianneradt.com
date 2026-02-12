@@ -20,12 +20,14 @@
     }
 
     function handleFormSubmission() {
-        // Get form values from Gravity Forms fields
-        var nameField = document.querySelector('input[name="input_2"]');
+        // Get form values from Gravity Forms fields.
+        // Field mapping: input_1=name, input_3=email, input_4=phone,
+        //                input_5=service (select), input_6=message (textarea)
+        var nameField = document.querySelector('input[name="input_1"]');
         var emailField = document.querySelector('input[name="input_3"]');
         var phoneField = document.querySelector('input[name="input_4"]');
-        var serviceField = document.querySelector('input[name="input_7"]:checked');
-        var messageField = document.querySelector('textarea[name="input_5"]');
+        var serviceField = document.querySelector('select[name="input_5"]');
+        var messageField = document.querySelector('textarea[name="input_6"]');
 
         if (!nameField || !emailField || !phoneField) {
             alert('Please fill out all required fields');
@@ -42,7 +44,7 @@
         formData.append('name', nameField.value);
         formData.append('email', emailField.value);
         formData.append('phone', phoneField.value);
-        formData.append('service', serviceField ? serviceField.value.toLowerCase() : 'other');
+        formData.append('service', serviceField ? serviceField.value : '');
         formData.append('message', messageField ? messageField.value : '');
 
         // Show loading state

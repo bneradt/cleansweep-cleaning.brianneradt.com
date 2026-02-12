@@ -49,19 +49,7 @@ if (!empty($errors)) {
     exit;
 }
 
-// Service type labels
-$service_labels = [
-    'residential' => 'Residential Cleaning',
-    'commercial' => 'Commercial Cleaning',
-    'deep-cleaning' => 'Deep Cleaning',
-    'window' => 'Window Cleaning',
-    'move-in-out' => 'Move-In/Move-Out Cleaning',
-    'turnover' => 'Turnover Cleaning',
-    'maid' => 'Maid Services',
-    'other' => 'Other'
-];
-
-$service_text = isset($service_labels[$service]) ? $service_labels[$service] : 'Not specified';
+$service_text = !empty($service) ? $service : 'Not specified';
 
 // Build email content
 $email_subject = $email_subject_prefix . ' New Contact Form Submission';
