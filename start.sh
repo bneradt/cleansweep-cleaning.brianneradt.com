@@ -13,6 +13,7 @@ tls on
 tls_starttls on
 logfile /var/log/msmtp.log
 EOF
+chown nginx:nginx /etc/msmtprc
 chmod 600 /etc/msmtprc
 
 php-fpm84 &
